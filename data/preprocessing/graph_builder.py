@@ -14,6 +14,35 @@ from torch_geometric.data import Data
 from .cnf_parser import CNF
 
 
+class CustomData(Data):
+    """
+    Custom Data class to handle batching of specialized graph structures.
+    
+    This is necessary because our data objects have multiple sets of nodes
+    (variables, clauses, clusters) that need to be incremented differently
+    during batching.
+    """
+    def __inc__(self, key, value, *args, **kwargs):
+        if key == 'var_clause_edge_index':
+            # src is variables, dst is clauses
+            return torch.tensor([[self.num_variables], [self.num_clauses]])
+        if key == 'cluster_edge_index':
+            # clusters are a single set of nodes
+            return self.num_clusters
+        if key == 'cluster_var_ids':
+            return self.num_variables
+        if key == 'cluster_clause_ids':
+            return self.num_clauses
+        return super().__inc__(key, value, *args, **kwargs)
+
+    @property
+    def num_nodes(self):
+        # Prevent PyG from trying to infer num_nodes from edge_index
+        # We don't have a single "num_nodes" concept
+        return self.num_variables + self.num_clauses
+
+
+
 @dataclass
 class FactorGraph:
     """
@@ -301,7 +330,7 @@ def join_graph_to_pyg(
     else:
         cluster_edge_index = torch.zeros((2, 0), dtype=torch.long)
 
-    data = Data(
+    data = CustomData(
         x_var=x_var,
         x_clause=x_clause,
         var_clause_edge_index=var_clause_edge_index,

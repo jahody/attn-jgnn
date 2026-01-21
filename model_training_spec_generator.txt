@@ -1,0 +1,116 @@
+MODEL & TRAINING SPECIFICATION GENERATOR
+
+TASK: Read paper text about [Attn-JGNN] and generate implementation specification for a coding agent to faithfully reproduce the MODEL, TRAINING, and LOSS setup.
+
+EXPERIMENT: [Attn-JGNN]
+DESCRIPTION: (Attention Enhanced Join-Graph Neural Networks) is a specialized neural network model designed to solve #SAT (Model Counting) problems.
+TARGET BENCHMARK: [RND3SAT in SATLIB] (dataset already implemented)
+
+INPUT: Extracted paper sections containing [Attn-JGNN] model/training information.
+
+OUTPUT: A complete, standalone specification document that can be given DIRECTLY to a coding LLM to implement the experiment. The coding agent should need ZERO additional context or prompting - your output must contain everything needed to write the code.
+
+CRITICAL: Only extract information about [Attn-JGNN]. If paper discusses multiple models/baselines/ablations, IGNORE all others. Do not mix hyperparameters from different experiments.
+
+SCOPE: MODEL, TRAINING, LOSSES ONLY. Dataset exists in data/. You may specify data interface requirements and propose minimal dataset modifications if incompatibility found (must not affect data generation faithfulness).
+
+CONTEXT FOR THE CODING AGENT (MUST include this verbatim at the start of your output):
+---
+AGENT SCOPE: Implementing ONLY model, training, loss components. Dataset exists in data/.
+
+Repository structure:
+- conf/ - Hydra yaml configs
+- data/ - dataset implementation (EXISTS - read first, modify only if incompatible)
+- models/ - model architecture + Lightning wrapper (CREATE)
+- losses/ - custom loss functions (CREATE if needed)
+- train.py - training entry point (CREATE)
+
+Tech stack: PyTorch Lightning, Hydra, PyTorch Geometric (if applicable)
+
+BEFORE IMPLEMENTING: Read data/ files to understand batch structure, shapes, types.
+---
+
+OUTPUT FORMAT:
+
+SECTION 1 - EXPERIMENT OVERVIEW
+Brief: what [Attn-JGNN] is, model family, learning objective, data from [RND3SAT in SATLIB].
+
+SECTION 2 - MODEL ARCHITECTURE
+- Model type: [GNN/Transformer/MLP/CNN/etc.]
+- Layer sequence: [e.g., 3x GCNConv -> ReLU -> Linear]
+- Hidden dimensions, num layers, attention heads: [exact values]
+- Normalization: [type, where applied]
+- Activations: [type, where applied]
+- Dropout: [rate, where applied]
+- Residual connections: [yes/no, pattern]
+- Pooling: [type if applicable]
+- Input/Output format: [shapes, types, logits/probs/values]
+- Pretrained: [HuggingFace ID/checkpoint, what to freeze]
+- Parameter count: [if mentioned]
+
+SECTION 3 - LOSS FUNCTIONS
+- Primary loss: type, formula if custom, reduction
+- Auxiliary losses: type, formula, weight coefficient [exact]
+- Combined formula: [e.g., L = L_main + 0.1*L_aux]
+- Special: label smoothing, class weights, masking
+
+SECTION 4 - TRAINING PROCEDURE
+- Optimizer: type, lr, weight_decay, betas/momentum [exact values]
+- LR schedule: type, warmup, decay params, min_lr [exact values]
+- Duration: epochs OR steps [exact]
+- Early stopping: patience, metric, mode
+- Batch size, gradient accumulation, gradient clipping [exact]
+- Checkpointing: metric, mode
+- Hardware: GPUs, precision [if mentioned]
+- Random seed: [if specified]
+
+SECTION 5 - IMPLEMENTATION INSTRUCTIONS
+
+models/[name]_model.py:
+- Class [ModelName](nn.Module):
+  - __init__ params: [list with types, defaults]
+  - Layer definitions: [exact layers]
+  - forward: [input format, steps, output format]
+  - For PyG: expect batch.x, batch.edge_index, batch.edge_attr, batch.batch
+
+models/wrapper.py:
+- Class ModelWrapper(pl.LightningModule):
+  - __init__(model, config): store model, hparams, loss fn
+  - forward(batch): call model
+  - training_step: forward, loss [exact formula], log [which metrics], return loss
+  - validation_step: forward, loss, log metrics
+  - test_step: same as validation
+  - configure_optimizers: [exact optimizer, scheduler setup]
+
+losses/[name]_loss.py (if custom):
+- [Function/class with exact computation]
+
+train.py:
+- @hydra.main decorated function
+- Instantiate datamodule, model, wrapper
+- pl.Trainer config: [max_epochs, accelerator, devices, precision, gradient_clip_val, callbacks, logger]
+- trainer.fit(wrapper, datamodule)
+
+Config files:
+- conf/model/[name].yaml - model hyperparameters
+- conf/training/[name].yaml - training hyperparameters
+- conf/config.yaml - add defaults
+
+SECTION 6 - DATA INTERFACE REQUIREMENTS
+- Required batch fields: [name, shape, dtype, purpose]
+- Collation requirements
+- AGENT: Verify data/ provides these. If incompatible, propose minimal fix preserving data generation.
+
+SECTION 7 - VERIFICATION CHECKLIST
+- Parameter count, LR, batch size, epochs [values from paper]
+
+SECTION 8 - MISSING INFORMATION
+- [e.g., "weight decay not specified"] + suggest defaults
+
+CRITICAL RULES:
+- ONLY [EXPERIMENT_NAME] - ignore other models/baselines/ablations
+- EVERY hyperparameter with EXACT values: "hidden_dim=256" not "hidden layer", "lr=1e-4" not "small lr"
+- If not in paper, list in MISSING INFORMATION - do not invent
+- IGNORE dataset creation (handled by benchmark spec) and results tables
+- Coding agent must reproduce paper's MODEL & TRAINING exactly from this spec
+- Your output must be COMPLETE and STANDALONE - a coding LLM receiving it should be able to implement everything without asking questions or needing additional context

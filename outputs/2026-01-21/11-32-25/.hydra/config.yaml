@@ -1,0 +1,54 @@
+model:
+  feature_dim: 64
+  num_iterations: 5
+  initial_heads: 4
+  max_heads: 8
+  head_increase_interval: 1000
+  constraint_gamma: 1.0
+  use_constraint_aware: true
+  use_attention: true
+  mlp_hidden_dim: 64
+training:
+  batch_size: 1
+  max_epochs: 200
+  lr: 0.001
+  weight_decay: 0.0
+  constraint_delta: 0.1
+  gpus: 1
+  precision: 32
+  num_workers: 4
+  gradient_clip_val: null
+  early_stopping_patience: 20
+  use_scheduler: true
+  scheduler_factor: 0.5
+  scheduler_patience: 10
+data:
+  name: satlib
+  data_dir: ${paths.data_dir}/satlib
+  categories:
+  - rnd3sat
+  - bms
+  - cbs
+  - gcp
+  - sw_gcp
+  min_instances_per_category: 100
+  variable_range:
+    min: 100
+    max: 600
+  total_instances: 46200
+  split_ratio:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+  seed: 42
+  label_solver:
+    name: dsharp
+    timeout: 5000
+  tree_decomposition:
+    tool: flowcutter
+    timeout: 300
+  graph:
+    feature_dim: 64
+    use_join_graph: true
+  root: data/satlib
+seed: 42

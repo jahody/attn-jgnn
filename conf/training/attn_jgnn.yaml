@@ -1,0 +1,31 @@
+# Training Configuration for Attn-JGNN
+# Note: Many values not specified in paper, using reasonable defaults
+
+# Batch size (not specified in paper)
+batch_size: 1  # Graph-level task, process one graph at a time
+
+# Training duration
+max_epochs: 200
+
+# Optimizer settings (not specified in paper, using Adam defaults)
+lr: 0.001
+weight_decay: 0.0
+
+# Constraint-aware loss coefficient (δ in paper)
+constraint_delta: 0.1
+
+# Hardware
+gpus: 1
+precision: 32
+num_workers: 4
+
+# Gradient clipping (not specified in paper)
+gradient_clip_val: null
+
+# Early stopping
+early_stopping_patience: 20
+
+# LR scheduler
+use_scheduler: true
+scheduler_factor: 0.5
+scheduler_patience: 10

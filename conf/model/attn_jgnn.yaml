@@ -1,0 +1,23 @@
+# Attn-JGNN Model Configuration
+# Based on paper: "Attn-JGNN: Attention Enhanced Join-Graph Neural Networks"
+
+# Feature dimension (d in paper)
+feature_dim: 64
+
+# Message passing iterations (T in paper)
+num_iterations: 5
+
+# Dynamic attention heads
+initial_heads: 4  # H_init
+max_heads: 8      # H_max
+head_increase_interval: 1000  # Steps between head increases
+
+# Constraint-aware mechanism
+constraint_gamma: 1.0  # γ for attention weight modification
+use_constraint_aware: true
+
+# Attention mechanism (set to false for no-attention variant)
+use_attention: true
+
+# MLP readout
+mlp_hidden_dim: 64

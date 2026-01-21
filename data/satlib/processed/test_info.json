@@ -1,0 +1,68 @@
+{
+  "num_samples": 40,
+  "files": [
+    "rnd3sat\\synth_49_0086.cnf",
+    "rnd3sat\\synth_43_0181.cnf",
+    "rnd3sat\\synth_22_0039.cnf",
+    "rnd3sat\\synth_20_0168.cnf",
+    "rnd3sat\\synth_35_0087.cnf",
+    "rnd3sat\\synth_41_0185.cnf",
+    "rnd3sat\\synth_37_0040.cnf",
+    "rnd3sat\\synth_44_0001.cnf",
+    "rnd3sat\\synth_23_0071.cnf",
+    "rnd3sat\\synth_49_0150.cnf",
+    "rnd3sat\\synth_23_0114.cnf",
+    "rnd3sat\\synth_24_0056.cnf",
+    "rnd3sat\\synth_42_0107.cnf",
+    "rnd3sat\\synth_44_0191.cnf",
+    "rnd3sat\\synth_44_0166.cnf",
+    "rnd3sat\\synth_42_0050.cnf",
+    "rnd3sat\\synth_48_0143.cnf",
+    "rnd3sat\\synth_50_0197.cnf",
+    "rnd3sat\\synth_50_0154.cnf",
+    "rnd3sat\\synth_32_0129.cnf",
+    "rnd3sat\\synth_26_0059.cnf",
+    "rnd3sat\\synth_44_0055.cnf",
+    "rnd3sat\\synth_35_0023.cnf",
+    "rnd3sat\\synth_48_0007.cnf",
+    "rnd3sat\\synth_33_0008.cnf",
+    "rnd3sat\\synth_40_0108.cnf",
+    "rnd3sat\\synth_44_0151.cnf",
+    "rnd3sat\\synth_37_0022.cnf",
+    "rnd3sat\\synth_47_0139.cnf",
+    "rnd3sat\\synth_23_0173.cnf",
+    "rnd3sat\\synth_23_0026.cnf",
+    "rnd3sat\\synth_35_0188.cnf",
+    "rnd3sat\\synth_29_0035.cnf",
+    "rnd3sat\\synth_45_0057.cnf",
+    "rnd3sat\\synth_30_0062.cnf",
+    "rnd3sat\\synth_50_0070.cnf",
+    "rnd3sat\\synth_26_0189.cnf",
+    "rnd3sat\\synth_44_0006.cnf",
+    "rnd3sat\\synth_48_0028.cnf",
+    "rnd3sat\\synth_27_0163.cnf"
+  ],
+  "categories": [
+    "rnd3sat",
+    "bms",
+    "cbs",
+    "gcp",
+    "sw_gcp"
+  ],
+  "category_counts": {
+    "rnd3sat": 200
+  },
+  "split": "test",
+  "split_ratio": {
+    "train": 0.6,
+    "val": 0.2,
+    "test": 0.2
+  },
+  "use_join_graph": true,
+  "feature_dim": 64,
+  "variable_range": {
+    "min": 20,
+    "max": 600
+  },
+  "seed": 42
+}

@@ -10,3 +10,5 @@ tqdm>=4.64.0
 
 # Optional: for parallel processing
 # multiprocessing is built-in to Python
+tensorboard>=2.10.0
+pytorch-lightning>=2.0.0

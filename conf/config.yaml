@@ -1,0 +1,25 @@
+# Main Hydra Configuration for Attn-JGNN Training
+
+defaults:
+  - model: attn_jgnn
+  - training: attn_jgnn
+  - data: satlib
+  - _self_
+
+# Global settings
+seed: 42
+
+# Paths (override data.root if needed)
+data:
+  root: data/satlib
+  variable_range:
+    min: 20
+    max: 600
+
+# Hydra configuration
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

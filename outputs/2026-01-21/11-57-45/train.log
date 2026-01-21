@@ -1,0 +1,277 @@
+[2026-01-21 11:57:45,376][__main__][INFO] - Configuration:
+model:
+  feature_dim: 64
+  num_iterations: 5
+  initial_heads: 4
+  max_heads: 8
+  head_increase_interval: 1000
+  constraint_gamma: 1.0
+  use_constraint_aware: true
+  use_attention: true
+  mlp_hidden_dim: 64
+training:
+  batch_size: 1
+  max_epochs: 200
+  lr: 0.001
+  weight_decay: 0.0
+  constraint_delta: 0.1
+  gpus: 1
+  precision: 32
+  num_workers: 4
+  gradient_clip_val: null
+  early_stopping_patience: 20
+  use_scheduler: true
+  scheduler_factor: 0.5
+  scheduler_patience: 10
+data:
+  name: satlib
+  data_dir: ${paths.data_dir}/satlib
+  categories:
+  - rnd3sat
+  - bms
+  - cbs
+  - gcp
+  - sw_gcp
+  min_instances_per_category: 100
+  variable_range:
+    min: 20
+    max: 600
+  total_instances: 46200
+  split_ratio:
+    train: 0.6
+    val: 0.2
+    test: 0.2
+  seed: 42
+  label_solver:
+    name: dsharp
+    timeout: 5000
+  tree_decomposition:
+    tool: flowcutter
+    timeout: 300
+  graph:
+    feature_dim: 64
+    use_join_graph: true
+  root: data/satlib
+seed: 42
+
+[2026-01-21 11:57:46,709][data.datasets.satlib_dataset][INFO] - Category rnd3sat: 200 valid instances
+[2026-01-21 11:57:46,710][data.datasets.satlib_dataset][WARNING] - Category bms not found in data\satlib\raw
+[2026-01-21 11:57:46,710][data.datasets.satlib_dataset][WARNING] - Category cbs not found in data\satlib\raw
+[2026-01-21 11:57:46,710][data.datasets.satlib_dataset][WARNING] - Category gcp not found in data\satlib\raw
+[2026-01-21 11:57:46,713][data.datasets.satlib_dataset][WARNING] - Category sw_gcp not found in data\satlib\raw
+[2026-01-21 11:57:46,713][data.datasets.satlib_dataset][INFO] - Processing 120 files for train split
+[2026-01-21 11:57:46,723][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,745][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,757][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,772][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,784][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,791][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,808][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,821][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,830][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,841][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,871][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,884][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,907][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,920][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,930][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,941][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,960][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,975][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:46,987][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,003][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,015][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,040][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,065][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,075][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,086][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,108][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,122][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,137][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,151][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,172][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,211][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,227][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,245][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,263][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,275][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,298][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,310][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,323][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,334][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,346][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,360][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,371][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,394][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,410][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,430][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,450][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,471][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,487][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,497][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,510][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,527][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,539][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,551][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,576][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,593][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,610][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,627][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,637][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,649][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,666][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,680][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,699][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,713][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,727][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,746][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,761][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,775][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,794][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,811][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,824][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,837][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,861][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,875][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,889][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,905][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,918][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,939][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,962][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:47,987][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,010][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,029][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,042][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,067][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,091][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,106][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,124][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,141][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,160][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,180][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,191][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,204][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,215][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,231][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,242][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,256][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,276][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,291][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,317][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,331][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,344][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,357][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,381][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,415][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,428][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,445][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,465][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,475][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,487][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,510][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,521][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,540][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,567][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,579][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,597][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,611][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,628][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,641][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,651][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,667][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:48,681][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,780][data.datasets.satlib_dataset][INFO] - Category rnd3sat: 200 valid instances
+[2026-01-21 11:57:49,782][data.datasets.satlib_dataset][WARNING] - Category bms not found in data\satlib\raw
+[2026-01-21 11:57:49,784][data.datasets.satlib_dataset][WARNING] - Category cbs not found in data\satlib\raw
+[2026-01-21 11:57:49,785][data.datasets.satlib_dataset][WARNING] - Category gcp not found in data\satlib\raw
+[2026-01-21 11:57:49,786][data.datasets.satlib_dataset][WARNING] - Category sw_gcp not found in data\satlib\raw
+[2026-01-21 11:57:49,787][data.datasets.satlib_dataset][INFO] - Processing 40 files for val split
+[2026-01-21 11:57:49,792][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,813][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,835][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,847][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,860][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,879][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,900][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,917][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,929][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,951][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,969][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:49,980][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,009][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,024][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,037][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,049][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,060][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,080][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,097][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,129][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,158][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,169][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,184][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,201][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,234][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,251][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,281][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,295][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,309][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,322][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,340][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,359][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,372][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,397][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,413][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,425][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,445][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,471][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,485][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:50,498][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,429][data.datasets.satlib_dataset][INFO] - Category rnd3sat: 200 valid instances
+[2026-01-21 11:57:51,430][data.datasets.satlib_dataset][WARNING] - Category bms not found in data\satlib\raw
+[2026-01-21 11:57:51,430][data.datasets.satlib_dataset][WARNING] - Category cbs not found in data\satlib\raw
+[2026-01-21 11:57:51,431][data.datasets.satlib_dataset][WARNING] - Category gcp not found in data\satlib\raw
+[2026-01-21 11:57:51,432][data.datasets.satlib_dataset][WARNING] - Category sw_gcp not found in data\satlib\raw
+[2026-01-21 11:57:51,433][data.datasets.satlib_dataset][INFO] - Processing 40 files for test split
+[2026-01-21 11:57:51,449][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,469][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,485][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,495][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,506][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,519][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,535][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,580][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,608][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,619][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,637][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,651][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,674][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,699][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,715][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,733][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,747][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,766][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,785][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,804][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,817][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,829][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,846][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,867][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,885][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,899][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,921][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,939][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,953][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,971][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,985][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:51,996][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,018][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,030][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,047][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,061][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,088][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,100][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,125][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,150][data.preprocessing.tree_decomposition][WARNING] - FlowCutter not found at 'flow_cutter_pace17'. Using fallback heuristic decomposition.
+[2026-01-21 11:57:52,238][__main__][INFO] - Dataset sizes - Train: 120, Val: 40, Test: 40
+[2026-01-21 11:57:52,243][__main__][INFO] - Model created with 37073 parameters
+[2026-01-21 11:57:52,317][__main__][INFO] - Starting training...
