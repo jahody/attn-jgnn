@@ -1,0 +1,12 @@
+Training Results Extracted from Log
+Timestamp: 2026-01-21 11:24:04,340
+
+EXPERIMENT RESULTS (use_attention=False)
+============================================================
+Best Val RMSE: 1.5462
+Test RMSE: 1.3993
+============================================================
+
+Additional Info:
+Final Epoch (100) Train RMSE: 1.3914
+Final Epoch (100) Val RMSE: 2.0592

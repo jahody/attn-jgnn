@@ -1,0 +1,2 @@
+- model.use_attention=False
+- data.categories=[rnd3sat]

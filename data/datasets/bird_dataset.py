@@ -283,7 +283,7 @@ class BIRDDataset(Dataset):
 
     def get(self, idx: int) -> Data:
         data_path = os.path.join(self.processed_dir, f'{self.split}_data.pt')
-        data_list = torch.load(data_path)
+        data_list = torch.load(data_path, weights_only=False)
         return data_list[idx]
 
 

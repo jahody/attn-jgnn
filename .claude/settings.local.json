@@ -14,7 +14,9 @@
       "Bash(dir:*)",
       "Bash(python scripts/download_satlib.py:*)",
       "Bash(python scripts/generate_labels.py:*)",
-      "Bash(python run_experiment.py:*)"
+      "Bash(python run_experiment.py:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c \"del \\\\?\\\\G:\\\\My Drive\\\\OSU\\\\projects\\\\attn-jgnn\\\\nul\")"
     ]
   }
 }
