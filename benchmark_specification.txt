@@ -1,0 +1,137 @@
+BENCHMARK DATA SPECIFICATION GENERATOR
+
+BENCHMARK_1 = BIRD benchmark
+BENCHMARK_2 = SATLIB benchmarks
+
+TASK: Read paper text about BENCHMARK_1 and BENCHMARK_2 and generate an implementation specification that will serve as a prompt for a code-generation LLM agent to faithfully reproduce the benchmark DATA setup only.
+
+BENCHMARK_1: BIRD benchmark
+DESCRIPTION_1: BIRD (BIg Bench for LaRge-scale Database Grounded Text-to-SQL Evaluation) is a leading industry-standard benchmark designed to evaluate the performance of Large Language Models (LLMs) in converting natural language into executable SQL queries
+
+BENCHMARK_2: SATLIB benchmarks
+DESCRIPTION_2: SATLIB is a standardized collection of benchmark problems used to evaluate and compare the performance of SAT solvers (algorithms designed to solve the Boolean Satisfiability problem)
+
+INPUT: Extracted text from paper containing BENCHMARK_1 and BENCHMARK_2 data information.
+
+YOUR OUTPUT will be given directly to a coding agent. Write it as clear implementation instructions.
+
+SCOPE: DATA AND BENCHMARK ONLY. No model architecture, no training logic, no evaluation metrics, no results reproduction. Only data generation, data loading, data preprocessing, label generation, and related configuration.
+
+CONTEXT FOR THE CODING AGENT (include verbatim in your output):
+---
+AGENT SCOPE: You are implementing ONLY the data/benchmark component. Do not create or modify anything related to models, training, evaluation, or results.
+
+Repository uses Hydra for configuration. Structure:
+- conf/ for yaml configs (create if missing)
+- data/ for dataset classes, data generators, data processing, label solvers (create if missing)
+- Other folders (models/, train.py, evaluate.py, utils/) will exist but ARE NOT YOUR CONCERN - do not create or reference them.
+
+If graph data is involved, use PyTorch Geometric.
+---
+
+OUTPUT FORMAT - Write a specification document with these sections:
+
+SECTION 1 - BENCHMARK OVERVIEW
+State what BENCHMARK_1 and BENCHMARK_2 is, the task type, and whether data is downloaded or generated. Keep brief.
+
+SECTION 2 - DATA SOURCE OR GENERATION
+
+If downloaded data:
+- URL, repository, citation, version
+- Download instructions if provided
+
+If generated/synthetic data:
+- Describe the data generation process exactly as in paper
+- List ALL parameters with their EXACT values:
+  - Distribution types (Gaussian, uniform, Bernoulli, etc.)
+  - Distribution parameters (mean, std, min, max, p, etc.)
+  - Number of samples
+  - Dimensionality
+  - Noise levels
+  - Seed if specified
+  - Any other numerical parameters
+- Describe structure (e.g., how nodes/edges are created for graphs)
+
+SECTION 3 - LABEL GENERATION
+If labels are computed via solver, algorithm, or simulation:
+- Describe the solver/algorithm used (e.g., Gurobi, CPLEX, Concorde, shortest path, PDE solver, physics engine)
+- Solver type: [exact solver name / algorithm name]
+- Solver parameters:
+  - Tolerance / precision
+  - Time limits
+  - Optimality gap
+  - Any solver-specific settings
+- What is being solved: [optimization objective, equation, problem formulation]
+- Output: [what the solver returns that becomes the label]
+- Library/package used if mentioned
+
+If labels are direct (e.g., classification from data):
+- Describe how labels are assigned
+
+SECTION 4 - IMPLEMENTATION INSTRUCTIONS
+Write explicit instructions using imperative style:
+
+For generated data:
+- Create file data/generators/[name]_generator.py containing:
+  - Function/class that generates data with parameters:
+    - [param1]: [value] (what it controls)
+    - [param2]: [value] (what it controls)
+  - Generation process: [step by step what to sample/compute]
+  - Output format: [describe tensors/arrays returned]
+  - Use PyTorch Geometric Data object if graph (specify node_attr, edge_index, edge_attr, y)
+
+For label solver:
+- Create file data/solvers/[name]_solver.py containing:
+  - Function/class that computes ground truth labels
+  - Solver setup: [library, algorithm, parameters]
+  - Input: [what it receives from data generator]
+  - Output: [label format]
+  - Include ALL solver parameters with exact values from paper
+
+For downloaded data:
+- Create file data/datasets/[name]_dataset.py containing:
+  - Dataset class that loads from [path]
+  - [processing details]
+
+Config file:
+- Create file conf/data/[name].yaml with ALL data parameters:
+  - Data generation params
+  - Solver params
+  - Split sizes
+  - batch_size
+
+Preprocessing (if any):
+- Create file data/preprocessing/[name]_preprocess.py that:
+  - [specific steps]
+
+SECTION 5 - DATA STRUCTURE
+Describe the exact structure of one data sample:
+- Input shape: [X]
+- Input type: [float, int, etc.]
+- Label shape: [Y]
+- Label type: [classification/regression target, solution vector, etc.]
+- For graphs: num_nodes, node_feature_dim, edge_feature_dim, edge connectivity pattern
+
+SECTION 6 - SPLITS
+- Train/val/test: [exact numbers or ratios]
+- Split method: [random with seed X / predefined / generated separately]
+- If generated: are splits generated independently or split from one generation?
+
+SECTION 7 - VERIFICATION CHECKLIST
+Quantities to verify data implementation is correct:
+- Total samples: [X]
+- Feature dimension: [Y]
+- [All other verifiable numbers from paper]
+
+SECTION 8 - MISSING INFORMATION
+Data-related information not specified in paper:
+- [e.g., "solver tolerance not specified", "random seed not mentioned"]
+
+CRITICAL RULES:
+- Extract EVERY numerical parameter - these are essential for reproduction
+- Be explicit about distributions: not just "Gaussian" but "Gaussian with mean=0, std=1"
+- If paper says "we sample X from Y" - capture exactly what X and Y are
+- If labels are computed via solver - capture EVERY solver parameter and setting
+- Do not invent parameters - if not in paper, list in MISSING INFORMATION
+- IGNORE any information about models, training procedures, or results
+- The coding agent must reproduce the paper's DATA setup exactly from your specification

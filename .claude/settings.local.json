@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(python tests/test_cnf_parser.py:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(python -c:*)",
+      "Bash(python tests/test_full_pipeline.py:*)",
+      "Bash(pip cache:*)",
+      "Bash(wc:*)"
+    ]
+  }
+}

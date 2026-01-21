@@ -1,0 +1,46 @@
+# BIRD Benchmark Configuration
+# CNF formulas from real-world model counting applications
+
+name: bird
+data_dir: ${paths.data_dir}/bird
+
+# Eight categories from BIRD benchmark
+# - DQMR networks
+# - Grid networks
+# - Bit-blasted versions of SMTLIB benchmarks
+# - ISCAS89 combinatorial circuits
+categories:
+  - dqmr
+  - grid
+  - smtlib
+  - iscas89
+  - blasted_case
+  - blockmap
+  - logistics
+  - plan_recognition
+
+# Train/test split (no separate validation for BIRD)
+split_ratio:
+  train: 0.7
+  test: 0.3
+
+# Label solver configuration
+label_solver:
+  name: dsharp
+  timeout: 5000  # seconds per instance
+
+# Tree decomposition configuration
+tree_decomposition:
+  tool: flowcutter
+  # tree_width controlled manually per instance
+  timeout: 300  # seconds
+
+# Graph representation settings
+graph:
+  feature_dim: 64
+  use_join_graph: true  # Use join-graph structure from tree decomposition
+
+# Dataset characteristics (for reference)
+# - 20-150 CNF formulas per category
+# - Large formulas: >10,000 variables and clauses possible
+# - Challenges generalization due to small dataset size

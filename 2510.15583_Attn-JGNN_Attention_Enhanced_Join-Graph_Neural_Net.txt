@@ -1,0 +1,296 @@
+# Attn-JGNN: Attention Enhanced Join-Graph Neural Networks  
+
+Jixin Zhang[0009- 0006- 9758- 7793] and Yong Lai[0000- 0002- 6882- 0107]  
+
+Key Laboratory of Symbolic Computation and Knowledge Engineering of Ministry of Education, Jilin University, Changchun, 130012, China laiy@jlu.edu.cn  
+
+Abstract. We propose an Attention Enhanced Join- Graph Neural Networks(Attn- JGNN) model for solving #SAT problems, which significantly improves the solving accuracy. Inspired by the Iterative Join Graph Propagation (IJGP) algorithm, Attn- JGNN uses tree decomposition to encode the CNF formula into a join- graph, then performs iterative message passing on the join- graph, and finally approximates the model number by learning partition functions. In order to further improve the accuracy of the solution, we apply the attention mechanism in and between clusters of the join- graphs, which makes Attn- JGNN pay more attention to the key variables and clusters in probabilistic inference, and reduces the redundant calculation. Finally, our experiments show that our Attn- JGNN model achieves better results than other neural network methods.  
+
+## 1 Introduction  
+
+Given a propositional formula, the model counting problem (#SAT) aims to compute the number of satisfying assignments. As a fundamental problem in computer science, model counting has a wide range of practical applications, including probabilistic inference [26, 9], probabilistic databases [12], probabilistic programming [16], neural network verification [4], network reliability [4]. However, most of these model counting problems are #P- hard [34], posing significant challenges to computation. Although the scalability of exact model counters has been substantially improved, the inherent difficulty of this problem remains unchanged. Consequently, researchers have turned to exploring approximate methods to address model counting problems in real- world scenarios. The state- of- the- art approximate counting methods, such as ApproxMC [6], satss [17], STS [15], PartialKC [21], have improved computational efficiency, yet they usually require invoking external SAT solvers in practical applications. Since the SAT problem itself is NP- hard, how to further enhance computational efficiency and scalability remains a major challenge in this field.  
+
+With neural networks demonstrating excellent learning abilities, various machine learning especially deep learning methods have been proposed for proposition model count [33, 25, 35], including independent neural solver, directly predict the satisfaction of a given task distribution in implementing occuring [2, 3]. Another research focus is to construct a general neural network framework by
+
+learning the approximate values of the partition function in statistical physics as an approximate #SAT solver. This general network framework usually relies on propagation algorithms such as belief propagation algorithms. When the propagation algorithm converges, it corresponds to the critical point of Bethe free energy. The iterative process of the propagation algorithm is the process of finding the extreme point of bethe free energy [8]. Our work is based on this framework.  
+
+A recent work, NSNet [23], a general graph neural network framework, describes the satisibility problem as a probabilistic reasoning problem on the graph, relying only on simple belief propagation (BP) as the message update rule in the latent space, and estimates the partition function to complete the approximate prediction. Encouraging results were shown on the #SAT question. However, although the BP algorithm is accurate in the tree structure, it inevitably generates repetitive messages when facing complex loop structures, resulting in NSNet being able to handle only specific graph structures and the solution accuracy being limited by the BP algorithm.  
+
+Another kind of approximate model counter BPGAT [27] by extending the BPNN architecture [18], by introducing mechanism of attention, give important variables or higher weights of clause, Thereby improving the accuracy of understanding. However, due to the huge overhead brought by the global attention mechanism, it has not shown a very good effect on large- scale tasks, which is also limited by the graph structure.  
+
+To solve the above problems, this paper proposes to use the Iterative join- graph Propagation (IJGP) [11] algorithm combined with the attention mechanism [5, 37] to solve the #SAT problem, which is called Attention Enhanced Join- Graph Propagation (Attn- JGNN). The IJGP algorithm is an approximate reasoning algorithm for probabilistic graphical models (such as Bayesian networks and Markov networks), aiming to effectively calculate the marginal probability or conditional probability of variables. The key idea is to approximate the precise solution by constructing a simplified join- graph and iteratively passing local messages. Compared with BP, IJGP can flexibly control the structure of the graph and the message- passing strategy by controlling the tree width of tree decomposition.  
+
+We put the relevant variables and clause nodes into a clustering structure, connect different clusters through marked edges to form a join- graph, and apply the attention mechanism in each cluster of the join- graph to achieve a hierarchical effect. The Attn- JGNN model parameterizes the IJGP in the latent space through GNN and simulates its message update using the attention mechanism. IJGP avoids the repeated transmission of messages on the ring through edge marking, and its unique tree decomposition structure also enables us to better introduce the attention mechanism, thereby reducing the time complexity by an order of magnitude. Finally, similar to the previous framework, learn the partition function to approximately estimate the number of models.  
+
+Specifically, in view of the hierarchical structure differences in message passing within and between clusters, we adopt a hierarchical structure where two
+
+attention layers are respectively responsible for message passing within and between clusters to improve the solution efficiency. We added a constraining awareness module in the loss function in the form of a regularization term, which prioritizes easily satisfied clauses and penalizes variable assignments that violate the constraints. Meanwhile, a dynamic attention mechanism is adopted. By dynamically increasing or decreasing the number of attention heads along with the time step, the training speed is improved and the resource consumption is reduced.  
+
+In the ablation experiment, we proved that the above three improvements were effective. And IJGP is significantly superior to the BP algorithm. The experimental results on the BIRD and SATLIB benchmark datasets show that, with RMSE as the metric, compared with NSNet and BPGAT, the solution accuracy of Attn- JGNN has increased by \(31\%\) and \(45\%\) respectively.  
+
+This paper constructs a neural network framework Attn- JGNN. This framework applies the hierarchical attention mechanism to the join- graph of the IJGP algorithm and optimizes the framework through two methods: constraint awareness and dynamic trimming of the attention head. It breaks through the limitations of the graph structure imposed by traditional propagation algorithms and is more efficient when combined with attention.  
+
+## 2 Preliminaries  
+
+### 2.1 Satisfiability Problems  
+
+In propositional logic, a Boolean formula is composed of Boolean variables and logical operators (e.g., negation \((\neg)\) , conjunction \((\wedge)\) , and disjunction \((\vee)\) ). It is standard practice to represent Boolean formulas in Conjunctive Normal Form (CNF), which takes the form of a conjunction of clauses—where each clause is a disjunction of literals (a literal is either a variable or its negation). Given a CNF formula, the SAT (Satisfiability Problem) asks whether there exists any variable assignment that satisfies the formula. In contrast, the goal of #SAT (Propositional Model Counting Problem) is to count the total number of such satisfying assignments (also called "models").  
+
+### 2.2 Iterative Join-Graph Propagation  
+
+IJGP (Iterative Join- Graph Propagation) is an approximate inference algorithm designed primarily to compute marginal probabilities in probabilistic graphical models (e.g., Markov Random Fields (MRFs) and Bayesian Networks (BNs)). It constructs a join- graph and performs iterative message passing over this graph to efficiently approximate complex probability distributions.  
+
+For a given probabilistic graphical model, its joint probability distribution can be expressed as a product of factors:  
+
+\[P(X) = \left(\frac{1}{Z}\right)\prod_{i = 1}^{m}\phi_{i}(C_{i}) \quad (1)\]
+
+where \(\phi_{i}(C_{i})\) is a factor defined on a subset of variables \(C_{i} \subseteq X\) , and \(\mathbf{Z}\) is the normalization constant (partition function). A join-graph is a structure that decomposes the factor graph of the model into multiple clusters. Each cluster contains a set of variables and their associated factors. To ensure correctness of subsequent inference, the join-graph must satisfy two key properties: Coverage: Each factor \(\phi_{i}\) must be included in at least one cluster. Connectivity: For any two clusters that share a variable, there exists a path connecting them, and all clusters on the path contain the variable.  
+
+In this work, the join- graph is constructed using the external tree decomposition tool flow- cutter; the tree- width of the decomposition is controlled manually. In the join- graph, a message is a function transmitted from a cluster \(C_{i}\) to another cluster \(C_{j}\) , defined as:  
+
+\[m_{i\to j}(S_{ij}) = \sum_{C_{i}\setminus S_{ij}}\phi_{i}(C_{i})\prod_{k\in n e(i)\setminus j}m_{k\to i}(S_{ki}) \quad (2)\]  
+
+\(S_{ij} = C_{i}\cap C_{j}\) is the set of shared variables between clusters \(C_{i}\) and \(C_{j}\) , \(ne(i)\) is the set of neighboring cluster of \(C_{i}\) and \(\sum_{C_{i}\setminus S_{ij}}\) denotes summation over variables  
+
+in \(C_{i}\backslash S_{ij}\) . The core of IJGP is to approximate marginal probabilities via iterative message passing. The algorithm proceeds as follows: Initialize all messages \(m_{i\to j}\) to uniform distributions, For each cluster \(C_{i}\) , compute the message \(m_{i\to j}\) for every neighboring cluster \(C_{j}\) , then, Update messages until convergence or the maximum number of iterations is reached, finally, for each variable X, its marginal probability \(\mathrm{P(X)}\) is proportional to the product of all messages in the clusters that contain X:  
+
+\[P(X)\propto \prod_{X\in C_{i}}m_{i\to j}(S_{ij}) \quad (3)\]  
+
+### 2.3 Graph Attention Networks  
+
+The Graph Attention Network (GAT) is a graph neural network model that leverages attention mechanisms to dynamically aggregate information from neighboring nodes. Its key advantage is the ability to assign adaptive attention weights to different neighbors, capturing the relative importance of each node in the graph. For a target node \(\mathbf{v}\) and its neighbor \(u \in N(v)\) (where \(\mathrm{N(v)}\) denotes the set of neighbors of \(\mathbf{v}\) ), the attention weight \(\alpha_{vu}\) (representing the importance of node \(u\) to node \(\mathbf{v}\) ) is defined as:  
+
+\[\alpha_{vu} = \frac{exp(LeakyReLU(a^{T}[Wh_{v}||Wh_{u}]))}{\sum_{k\in N(v)}exp(LeakyReLU(a^{T}[Wh_{v}||Wh_{k}]))} \quad (4)\]
+
+where \(W \in \mathbb{R}^{d' \times d}\) a learnable weight matrix; \(a \in \mathbb{R}^{2d'}\) is a learnable attention vector; \(||\) denotes vector concatenation; The updated representation \(h_v'\) of node v is obtained by weighted aggregation of information from neighboring nodes:  
+
+\[h_v' = \sigma (\sum_{u \in N(v)} \alpha_{vu} W h_u) \quad (5)\]  
+
+## 3 Methodology  
+
+In this section, we first elaborate on the framework of our model (Attn- JGNN) and its operating principles, followed by an introduction to the integration of tree decomposition and attention mechanisms. As a neural- network- based implementation of the Iterative Join- Graph Propagation (IJGP) algorithm, this framework features a unique tree decomposition structure that facilitates better integration with the attention mechanism. By formulating #SAT as a probabilistic inference task, we demonstrate how Attn- JGNN solves the problem (see Fig. 1).  
+
+<center>Fig.1: For the #SAT problem, our model uses two Graph Attention Network (GAT) layers for message passing and a Multi-Layer Perceptron (MLP) layer to estimate the partition function, serving as an approximate solver. A pooling layer compresses the processed variable and clause node features into a global representation, which is fed into the MLP layer. </center>  
+
+### 3.1 Attn-JGNN Framework  
+
+For a given Conjunctive Normal Form (CNF) formula, we first encode it as a factor graph: an edge is established between a variable \(x_i\) and a clause \(C_j\) if \(x_i\)
+
+appears in \(C_{j}\) , We then use an external tree decomposition tool to decompose this factor graph into a join- graph (consistent with the definition in Section 2.2), generating a set of clusters \(\{C_{1}, C_{2}, \ldots , C_{k}\}\) . Each cluster contains variables and clauses that form a local substructure (see Fig. 2). At the input layer, we initialize two types of features: \(h_{v}\) and self- identifying node feature \(h_{\phi}\) . The core architecture of the Attn- JGNN consists of two GAT layers(denoted GAT1 and GAT2), one MLP layer, and one pooling layer. \(GAT1\) and \(GAT2\) are cyclically invoked during message passing until convergence. \(GAT1\) is responsible for local variation- clause message passing, \(GAT2\) is responsible for cross- cluster message passing, and aggregates messages through splicing- pooling operation. Finally, \(b_{i}(C_{i})\) and \(b_{i}(x_{i})\) are estimated by the MLP layer to output the final number of models. The design of the architecture is in line with the iterative nature of the IJGP algorithm, that is, local first, then global, and the results within a cluster directly affect the propagation weight between clusters.  
+
+<center>Fig. 2: In the picture A,B,C... representing variables(Clause nodes are hidden, and clause nodes cannot appear on edges),the shared variables between the two clusters act as edge-lable. the same factor graph can be decomposed into different tree decomposition forms, figure (a) shows a low tree width but with poor accuracy, while figure (b) shows a high tree width, featuring high complexity but high accuracy </center>  
+
+### 3.2 Tree Decomposition and Attention  
+
+Prior work has demonstrated the effectiveness of attention mechanisms for solving satisfiability problems [27]. However, the high computational overhead of global attention limits scalability—for a CNF formula with n variables and m
+
+clauses, global attention requires \(O((n + m)^{2})\) computations to model interactions between all pairs of nodes. In Attn- JGNN, we address this issue by applying attention mechanisms per cluster (after tree decomposition of the factor graph). This reduces the computational complexity to \(O(kw^{2})\) , where k is the number of clusters and w is the maximum tree- width of the clusters. The advantage of this design becomes more pronounced as the problem scale increases.  
+
+We propose three tailored attention mechanisms to optimize Attn- JGNN, detailed below. In our work, we adopted three attention mechanisms to optimize the model, which are introduced in this section. In the Attention mechanism, Attention(Q,K,V) is the core computing module used to dynamically weight aggregated information based on the interaction of Query, Key, and Value. In Scaled Dot- Product Attention defined as:  
+
+\[A t t e n t i o n(Q,K,V) = s o f t m a x(\frac{Q K^{T}}{\sqrt{d_{k}}})V \quad (6)\]  
+
+Hierarchical attention mechanism The hierarchical attention mechanism in Attn- JGNN aims to efficiently capture local and global dependencies in the graph via multi- granularity information aggregation. This design reduces computational overhead while enhancing the model's ability to reason about complex constraints.  
+
+Local: The microscopic interaction between the attention- focused variable and the clause within the cluster (such as the polarity conflict of variables within the clause). The contribution weights of \(x_{1}\) and \(x_{2}\) to \(\phi_{1}\) are calculated in the cluster \(C_{1} = \{x_{1},x_{2},\phi_{1} = (x_{1}\vee \neg x_{2})\}\) so that high weights are assigned to variable assignments that are more likely to satisfy the clause; Variables and clauses inside cluster \(C\) calculate attention weights:  
+
+\[\alpha_{i n t r a} = L e k y R e L U(\frac{(W_{Q}h_{i})^{T}(W_{K}h_{j})}{\sqrt{d}}),\quad \forall x_{i},x_{j}\in C_{k} \quad (7)\]  
+
+For variable node \(x_{i}\) and clause node \(\phi_{j}\) in cluster \(C\) , the message passing formula is:  
+
+\[\begin{array}{r l} & {m_{x_{i}\to \phi_{j}}^{(k)} = \alpha_{i n t r a}\cdot \prod_{u\in \mathcal{N}(x_{i})\backslash \phi_{j}}m_{u\to x_{i}}^{(k)}}\\ & {}\\ & {m_{\phi_{j}\to x_{i}}^{(k)} = \alpha_{i n t r a}\cdot \sum_{C_{k}\backslash \{x_{i}\}}\phi_{j}(C_{k})\cdot \prod_{v\in \mathcal{N}(\phi_{j})\backslash x_{i}}m_{v\to \phi_{j}}^{(k)}} \end{array} \quad (9)\]  
+
+Update clause and variable feature:  
+
+\[h_{j} = \sum_{x_{i}\in C_{k}}\alpha_{i n t r a}W_{V}h_{i} \quad (10)\]
+
+Global: Inter- cluster attention transmits macro- constraints across clusters (such as consistency of assignment of distant variables) through shared variables. If clusters \(C_{1}\) and \(C_{2}\) share the variable \(x_{2}\) , then attention determines the influence of \(C_{1}\) and \(C_{2}\) on the assignment of \(x_{2}\) . If \(C_{1}\) and \(C_{2}\) tend to conflict on \(x_{2}\) , the attention weight automatically adjusts the message passing intensity. Calculate the attention weight of clusters \(C_{1}\) to \(C_{2}\) by passing cross- cluster messages through shared variables:  
+
+\[\alpha_{i n t e r} = L e k y R e L U(\frac{(W_{Q}h_{C_{1}})^{T}(W_{K}h_{C_{2}})}{\sqrt{d}}) \quad (11)\]  
+
+For adjacent clusters \(C_{1}\) and \(C_{2}\) (shared variable \(S_{12} = C_{1} \cap C_{2}\) ), the inter cluster message is:  
+
+\[m_{C_{1}\to C_{2}}(S_{12}) = \alpha_{i n t e r}\cdot \sum_{C_{1}\backslash S_{12}}(\phi_{1}(C_{1})\cdot \prod_{k\in n e(C_{1})\backslash C_{2}}m_{k\to C_{1}}) \quad (12)\]  
+
+Update shared variable characteristics:  
+
+\[h_{x} = h_{x}^{(C_{1})} + \alpha_{i n t e r}W_{V}h_{x}^{(C_{2})} \quad (13)\]  
+
+Dynamic attention mechanism The dynamic attention mechanism in Attn- JGNN model is realized by dynamically adjusting the number of attention heads to balance the performance of the model in different training stages and different complexity clauses. Start training with fewer attentional heads, quickly capture simple patterns (such as explicit constraints of short clauses), avoid overfitting, gradually increase the number of heads as the number of training steps increases to improve expressiveness, and deal with complex clauses (such as long chain dependencies)  
+
+\[H(t) = m i n(H_{m a x},H_{i n i t} + \lfloor \frac{t}{T}\rfloor) \quad (14)\]  
+
+Assign a learnable weight to each attentional head \(\lambda_{h}\) , dynamically adjusting its contribution:  
+
+\[\alpha_{d y} = \frac{1}{H(t)}\sum_{h = 1}^{H}(t)\lambda_{h}A t t e n t i o n(Q,K,V) \quad (15)\]  
+
+When \(\lambda_{h}\) is updated by gradient descent, the weight of important heads increases and the weight of redundant heads approaches 0. This design allows Attn- JGNN to efficiently handle highly heterogeneous clause structures in #SAT problems while maintaining low computational costs.  
+
+Constraint- Aware Mechanism In Attn- JGNN, the central role of the Constraint- Aware Mechanism is to explicitly guide the model to preferentially satisfy clause constraints in the CNF formula, thus more efficiently approaching the correct model count. The realization method combines attention weight
+
+adjustment and loss function regularization. For each clause \(C_{i}\) , define its satisfaction score \(s_{i}\) :  
+
+\[s_{i} = s i g m o i d(\sum_{x_{j}\in \phi_{i}}(2b_{j}(x_{j}) - 1)p o l a r i t y(x_{j},\phi_{i})) \quad (16)\]  
+
+where, \(b_{j}(x_{j})\) is the current assignment probability of \(x_{j}\) ; \(polarity(x_{j}, \phi_{i})\) represents the polarity of \(x_{j}\) in the clause \(\phi_{i}\) . \(s_{i} \in (0,1)\) , where the closer to 1 means that the clause \(\phi_{i}\) is more likely to be satisfied. Add the following regularization terms to the loss function:  
+
+\[\mathcal{L}_{c o n s} = -\delta \sum_{i = 1}^{m}l n s_{i}, \quad (17)\]  
+
+Combining the RMSE and the constrained aware regularization term, the total loss function is:  
+
+\[\mathcal{L}_{t o t a l} = \mathcal{L}_{R M S E} + \mathcal{L}_{c o n s} \quad (18)\]  
+
+The constraint awareness mechanism acts on the other mechanisms, implicitly adjusting the message passing process, using \(s_{i}\) weighted messages when propagating within and between clusters:  
+
+\[\alpha_{i n t r a} = L e k y R e L U(\frac{(W_{q}h_{i})^{T}(W_{k}h_{j}) + \gamma s_{i}}{\sqrt{d}}) \quad (19)\]  
+
+### 3.3 #SAT  
+
+In join- graph, we need to modify the Bethe formula to fit the specific structure of the join- graph:  
+
+\[F_{B e t h e - J o i n} = \sum_{\alpha}[H(b_{C_{\alpha}}) - \sum_{v\in C_{\alpha}}(d_{v}^{\alpha} - 1)H(b_{v})] \quad (20)\]  
+
+\(H(b_{C_{\alpha}})\) is the joint distribution entropy of variables and clauses within cluster \(C_{\alpha}\) , \(H(b_{v})\) is the entropy of the local variable, are the \(G A T1\) and \(G A T2\) outputs respectively, which are used as the input of the MLP layer after the pooling operation, the goal of the MLP is to approximate \(F_{B e t h e - J o i n}\) by the hierarchical structure of the join- graph. Its inputs and specific implementation are as follows:  
+
+\[h_{C_{\alpha}} = [H(b_{C_{\alpha}}), \sum_{v \in C_{\alpha}}(d_{v}^{\alpha} - 1)H(b_{v})], h_{G} = \frac{1}{|C_{\alpha}|} \sum_{\alpha} h_{C_{\alpha}} \quad (21)\]  
+
+\[H(b_{C_{\alpha}}) = G A T1(\frac{1}{|C_{\alpha}|} \sum_{j \in C_{\alpha}} h_{j}), H(b_{v}) = G A T2(h_{x}) \quad (22)\]
+
+The MLP fits the following mappings:  
+
+\[\hat{F}_{B e t h e - J o i n} = W_{2}\cdot R e L U(W_{1}h_{G} + b_{1}) + b_{2} \quad (23)\]  
+
+\(W_{1}\in \mathbb{R}^{d\times 2},b_{1}\in \mathbb{R}\) is the MLP hidden layer parameter and the \(W_{2}\in \mathbb{R}^{1\times d},b_{2}\in\) \(\mathbb{R}\) is the output layer parameter. By supervised ground truth \(\log Z\) (precomputed by the exact method), the loss function is designed as follows \(\mathcal{L}_{t o t a l}\) , finally, make a prediction:  
+
+\[\log Z\approx -\hat{F}_{B e t h e - J o i n} = -M L P(h_{G}) \quad (24)\]  
+
+## 4 Experimental Evaluation  
+
+### 4.1 Experiment Setup  
+
+In all experiments, we set the feature dimension \(\mathrm{d} = 64\) and the number of messagepassing iterations \(\mathrm{T} = 5\) for training. The model architecture consists of two Graph Attention Network (GAT) layers followed by a Multi- Layer Perceptron (MLP) layer (in a sequential connection). The initial number of attention heads is 4, and this number increases by 1 every 1000 training steps until reaching a maximum of 8. All experiments are conducted on a server equipped with a single NVIDIA A100 GPU and 8 CPU cores.  
+
+We first follow the experiment settings in recent work NSNet. Specifically, we run experiments using the same subset of BIRD benchmark [31] , which contains eight categories arising from DQMR networks, grid networks, bit- blasted versions of SMTLIB benchmarks, and ISCAS89 combinatorial circuits. Each category has 20 to 150 CNF formulas, which we split into training/testing with a ratio of \(70\% /30\%\) . Note that the BIRD benchmark is quite small and contains large- sized formulas with more than 10,000 variables and clauses, it challenges the generalization ability of our model. Besides evaluating in such a data- limited regime, we also conduct experiments on the SATLIB benchmark, an open- source dataset containing a broad range of CNF formulas collected from various distributions. To train our model effectively, we choose the distributions with at least 100 satisfiable instances, which include the following 5 categories: (1) uniform random 3- SAT on phase transition region (RND3SAT), (2) backbone- minimal random 3- SAT (BMS), (3) random 3- SAT with controlled backbone size (CBS), (4) "Flat" graph coloring (GCP), and (5) "Morphed" graph coloring (SW- GCP). The whole dataset has 46,200 SAT instances with the number of variables ranging from 100 to 600, and we split it into training/validation/testing sets with a ratio of \(60\% /20\% /20\%\) . For both BIRD and SATLIB benchmarks, we ran the state- of- the- art exact #SAT solver DSharp [24] with a time limit of 5,000 seconds to generate the ground truth labels. The instances where DSharp fails to finish within the time limit are discarded.
+
+### 4.2 Evaluation & Baselines  
+
+Following BPNN and NSNet, we use the (1) root mean square error (RMSE) between the estimated log countings and ground truth as our evaluation metrics. We compare Attn- JGNN, the neural baseline BPNN and NSNet, and two state- of- the- art approximate model counting solvers, ApproxMC3 and F2 [1]. For ApproxMC3 and F2, we set a time limit of 5,000 seconds on each instance.  
+
+### 4.3 Main Results  
+
+<center>Fig. 3: (a) is RMSE between estimated log countings and ground truth for each solver on the BIRD benchmark;(b) is Scatter plot comparing the estimated log countings against the ground truth for each solver on the BIRD benchmark </center>  
+
+As shown in Figure 3a, Attn- JGNN can estimate tighter counts than NSNet, BPNN, and F2 in all categories of the BIRD benchmark. Attn- JGNN estimates are almost three times more accurate than F2 and BPNN. However, Attn- JGNN cannot compete with ApproxMC3.  
+
+Figure 3b shows the scatter plot. The estimated logarithmic count is compared to the ground truth for each solver on the BIRD benchmark. When the ground truth is less than \(e^{100}\) , Attn- JGNN and ApproxMC3 can provide more accurate estimates than NSNet, F2 and BPNN in most cases. ApproxMC3 is unable to complete in 5000 seconds when the ground truth count exceeds \(e^{100}\) , Attn- JGNN can still give a close approximation when the ground truth count exceeds \(e^{1000}\) . This demonstrates the effectiveness of Attn- JGNN in solving difficult and large cases.  
+
+The solution speed of Attn- JGNN without using the attention mechanism is same order of magnitude as that of NSNet, and its effect is still better than that of NSNet. This further indicates that the reasoning ability of the IJGP algorithm is superior to that of BP.
+
+Table 1: Comparison of RMSE between Attn-JGNN without attention mechanism and NSNet   
+
+<table><tr><td>Method</td><td>RND3SAT</td><td>BMS</td><td>CBS</td><td>GCP</td><td>SW-GCP</td></tr><tr><td>NSNet</td><td>1.57</td><td>2.45</td><td>1.68</td><td>2.14</td><td>1.37</td></tr><tr><td>Attn-JGNN-Att</td><td>1.42</td><td>2.29</td><td>1.33</td><td>2.08</td><td>1.25</td></tr></table>  
+
+Table 2 shows the detailed RMSE results for each solver on the SATLIB benchmark. The data for the BIRD benchmark is collected from many real- world model counting applications that may share many common logical structures to learn, whereas instances in the SATLIB benchmark are randomly generated, making it difficult for Attn- JGNN to exploit common features. Despite this, Attn- JGNN still outperforms NSNet and F2 in most categories. To prove  
+
+Table 2: RMSE between estimated log countings and ground truth for each solver on the SATLIB benchmark.   
+
+<table><tr><td>Method</td><td>RND3SAT</td><td>BMS</td><td>CBS</td><td>GCP</td><td>SW-GCP</td></tr><tr><td>F2</td><td>2.13</td><td>2.42</td><td>2.37</td><td>2.40</td><td>2.66</td></tr><tr><td>NSNet</td><td>1.57</td><td>2.45</td><td>1.68</td><td>2.14</td><td>1.37</td></tr><tr><td>Attn-JGNN</td><td>1.15</td><td>1.66</td><td>1.20</td><td>1.96</td><td>0.96</td></tr></table>  
+
+Table 3: Ablation experiments of the Attn-JGNN model on three refinements.   
+
+<table><tr><td>Method</td><td>RMSE</td><td>Head utilization(%)</td><td>Training time/convergence</td></tr><tr><td>GAT</td><td>1.33</td><td>100</td><td>185.155</td></tr><tr><td>GAT-H</td><td>1.26</td><td>100</td><td>153.499</td></tr><tr><td>GAT-HC</td><td>1.19</td><td>100</td><td>170.164</td></tr><tr><td>GAT-HCD</td><td>1.16</td><td>62.5</td><td>113.165</td></tr></table>  
+
+that the three attention mechanisms of our Attn- JGNN model are effective, Table 3 shows its ablation experiments with RMSE, attention head utilization and training time as evaluation metrics. Experiments show that the three attention mechanisms all play a positive role in the model. Among them, the hierarchical attention mechanism and constraint perception mechanism greatly improve the accuracy of the model, and the dynamic attention mechanism reduces the redundant attention head over time, avoids more calculations, reduces the training time and improves the efficiency of the model.
+
+## 5 Related Works  
+
+Since #SAT was proven to be a #P- complete problem, developing efficient solutions for #SAT with limited computational resources has become a key research focus. Traditional model counting methods are categorized into two groups based on the required accuracy of results: exact counting and approximate counting. Recent advances have also introduced data- driven neural network approaches, which leverage learning capabilities to address #SAT's inherent complexity.  
+
+Exact counting methods prioritize absolute correctness of results, making them suitable for scenarios with small variable scales or specialized formula structures. They can be further divided into search- based and dynamic programming (DP)- based approaches, depending on their core reasoning mechanisms. Search- based methods typically extend the Davis- Putnam- Logemann- Loveland (DPLL) algorithm—an iterative search procedure for propositional satisfiability—to count satisfying assignments. While these methods guarantee exact results, their scalability is sometimes limited due to exponential time complexity in the worst case. Well known tools in the search- based category includes c2d [10], SharpSAT [32], D4 [19], Ganak [29], ExactMC [20], Panini [22], etc. DP- based exact counters avoid brute- force search by decomposing the formula into subproblems and solving them recursively. Two representative methods are ADDMC [13] and DPMC [14].  
+
+Approximate counting methods trade off result accuracy for polynomial- time complexity, addressing the scalability gap of exact methods for large- scale CNF formulas. The most mainstream approaches in this category are hash- based approximate counters, which rely on randomization to estimate model counts without exhaustive enumeration. The core idea of hash- based methods is to partition the solution space (all variable assignments) into disjoint, uniformly sized "cells" using random hash functions. The total number of models is then estimated by: (1) randomly selecting a cell; (2) exactly counting the number of satisfying assignments within that cell; and (3) scaling the count by the total number of cells. A pioneering and widely used solver in this area is ApproxMC [6] and its subsequent optimizations [7, 31, 30, 36]. ApproxMC introduces random XOR constraints to partition the solution space—each XOR constraint defines a hash function that groups assignments into cells. It provides provable approximation guarantees by controlling the number of XOR constraints and the number of sampled cells. However, ApproxMC's performance heavily depends on the efficiency of its underlying SAT solver (used to count assignments in sampled cells) and requires careful engineering for state management and solver interaction. While ApproxMC provide guaranteed approximation, there are also some efficient approximate model counters without guarantee, such as STS [15], sats [17], and PartialKC [21].  
+
+With the rise of deep learning, data- driven neural network approaches have emerged as a new paradigm for #SAT, leveraging graph neural networks (GNNs) and message- passing architectures to learn patterns from formula structures. These methods do not rely on handcrafted heuristics, making them more adaptable to diverse formula distributions. Early works focused on predicting satis
+
+fiability (SAT) rather than counting models. A foundational example is NeuroSAT [28], which uses a GNN to perform message passing on a variable- clause bipartite graph (nodes represent variables/ clauses, edges represent membership). NeuroSAT learns to classify formulas as satisfiable or unsatisfiable by updating node features through iterative message exchange—demonstrating that neural networks can capture logical dependencies without explicit rule- based reasoning. Recent works extend neural approaches to #SAT by integrating message- passing algorithms (e.g., belief propagation) with neural networks, Proposed by Kuck et al., BPNN [18] combines belief propagation (BP) with a neural network architecture. It frames model counting as a probabilistic inference problem and uses BP to propagate beliefs (assignment probabilities) in the latent space. BPNN achieves up to 100x faster counting than state- of- the- art handcrafted solvers for certain formula classes, though it relies on BP's limitations (e.g., inaccuracy on cyclic graphs). Developed by Averi et al., BPGAT [27] extends BPNN by introducing an attention mechanism. It assigns higher weights to critical variables and clauses, enhancing the model's ability to capture impactful logical constraints. BPGAT serves as an approximate model counter, improving accuracy over BPNN but suffering from high computational overhead due to global attention.  
+
+## 6 Conclusions  
+
+In this work, we propose a neural framework for solving the satisfiability problem. Our framework combines tree decomposition and GAT, includes IJGP in the latent space, and performs partition function estimation to solve #SAT. Experimental evaluation on synthetic datasets and existing benchmarks shows that our approach significantly outperforms NSNet and other neural baselines and achieves competitive results compared to state- of- the- art solvers.  
+
+Acknowledgments. This work was supported in part by Jilin Provincial Natural Science Foundation [20240101378JC], Jilin Provincial Education Department Research Project [JJKH20241286KJ], and the National Natural Science Foundation of China [U22A2098, 62172185, and 61976050]  
+
+## References  
+
+1. Dimitris Achlioptas, Zayd Hammoudeh, and Panos Theodoropoulos. Fast and flexible probabilistic model counting. In Olaf Beyersdorff and Christoph M. Wintersteiger, editors, Theory and Applications of Satisfiability Testing - SAT 2018 - 21st International Conference, SAT 2018, Held as Part of the Federated Logic Conference, FloC 2018, Oxford, UK, July 9-12, 2018, Proceedings, volume 10929 of Lecture Notes in Computer Science, pages 148-164. Springer, 2018.  
+2. Saeed Amizadeh, Sergiy Matusevych, and Markus Weimer. Learning to solve circuit-sat: An unsupervised differentiable approach. In 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, USA, May 6-9, 2019. OpenReview.net, 2019.
+
+3. Saeed Amizadeh, Sergiy Matusevych, and Markus Weimer. PDP: A general neural framework for learning constraint satisfaction solvers. CoRR, abs/1903.01969, 2019.  
+
+4. Teodora Baluta, Shiqi Shen, Shweta Shinde, Kuldeep S. Meel, and Prateek Saxena. Quantitative verification of neural networks and its security applications. In Lorenzo Cavallaro, Johannes Kinder, XiaoFeng Wang, and Jonathan Katz, editors, Proceedings of the 2019 ACM SIGSAC Conference on Computer and Communications Security, CCS 2019, London, UK, November 11-15, 2019, pages 1249-1264. ACM, 2019.  
+
+5. Gianni Brauwers and Flavius Frasincar. A general survey on attention mechanisms in deep learning. IEEE Trans. Knowl. Data Eng., 35(4):3279-3298, 2023.  
+
+6. Supratik Chakraborty, Kuldeep S. Meel, and Moshe Y. Vardi. A scalable approximate model counter. In Christian Schulte, editor, Principles and Practice of Constraint Programming - 19th International Conference, CP 2013, Uppsala, Sweden, September 16-20, 2013. Proceedings, volume 8124 of Lecture Notes in Computer Science, pages 200-216. Springer, 2013.  
+
+7. Supratik Chakraborty, Kuldeep S. Meel, and Moshe Y. Vardi. Algorithmic improvements in approximate counting for probabilistic inference: From linear to logarithmic SAT calls. In Subbarao Kambhampati, editor, Proceedings of the Twenty-Fifth International Joint Conference on Artificial Intelligence, IJCAI 2016, New York, NY, USA, 9-15 July 2016, pages 3569-3576. IJCAI/AAAI Press, 2016.  
+
+8. Venkat Chandrasekaran, Misha Chertkov, David Gamarnik, Devavrat Shah, and Jinwoo Shin. Counting independent sets using the bethe approximation. SIAM J. Discret. Math., 25(2):1012-1034, 2011.  
+
+9. Mark Chavira and Adnan Darwiche. On probabilistic inference by weighted model counting. Artif. Intell., 172(6-7):772-799, 2008.  
+
+10. Adnan Darwiche. New advances in compiling CNF into decomposable negation normal form. In Ramon Lopez de Mantaras and Lorenza Saitta, editors, Proceedings of the 16th European Conference on Artificial Intelligence, ECAI'2004, including Prestigious Applicants of Intelligent Systems, PAIS 2004, Valencia, Spain, August 22-27, 2004, pages 328-332. IOS Press, 2004.  
+
+11. Rina Dechter, Kalev Kask, and Robert Mateescu. Iterative join-graph propagation. In Adnan Darwiche and Nir Friedman, editors, UAI '02, Proceedings of the 18th Conference in Uncertainty in Artificial Intelligence, University of Alberta, Edmonton, Alberta, Canada, August 1-4, 2002, pages 128-136. Morgan Kaufmann, 2002.  
+
+12. Guy Van den Broeck and Dan Suciu. Query processing on probabilistic data: A survey. Found. Trends Databases, 7(3-4):197-341, 2017.  
+
+13. Jeffrey M. Dudek, Vu Phan, and Moshe Y. Vardi. ADDMC: weighted model counting with algebraic decision diagrams. In The Thirty-Fourth AAAI Conference on Artificial Intelligence, AAAI 2020, The Thirty-Second Innovative Applications of Artificial Intelligence Conference, IAAI 2020, The Tenth AAAI Symposium on Educational Advances in Artificial Intelligence, EAAI 2020, New York, NY, USA, February 7-12, 2020, pages 1468-1476. AAAI Press, 2020.  
+
+14. Jeffrey M. Dudek, Vu H. N. Phan, and Moshe Y. Vardi. DPMC: weighted model counting by dynamic programming on project-join trees. In Helmut Simonis, editor, Principles and Practice of Constraint Programming - 26th International Conference, CP 2020, Louvain-la-Neuve, Belgium, September 7-11, 2020, Proceedings, volume 12333 of Lecture Notes in Computer Science, pages 211-230. Springer, 2020.  
+
+15. Stefano Ermon, Carla P. Gomes, and Bart Selman. Uniform solution sampling using a constraint solver as an oracle. In Nando de Freitas and Kevin P. Murphy, editors, Proceedings of the Twenty-Eighth Conference on Uncertainty in Artificial Intelligence, Catalina Island, CA, USA, August 14-18, 2012, pages 255-264. AUAI Press, 2012.  
+
+16. Daan Fierens, Guy Van den Broeck, Joris Renkens, Dimitar Sht. Shterionov, Bernd Gutmann, Ingo Thon, Gerda Janssens, and Luc De Raedt. Inference and learning in probabilistic logic programs using weighted boolean formulas. Theory Pract. Log. Program., 15(3):358-401, 2015.  
+
+17. Vibhav Gogate and Rina Dechter. Samplesearch: Importance sampling in presence of determinism. Artif. Intell., 175(2):694-729, 2011.  
+
+18. Jonathan Kuck, Shuvam Chakraborty, Hao Tang, Rachel Luo, Jiaming Song, Ashish Sabharwal, and Stefano Ermon. Belief propagation neural networks. In Hugo Larochelle, Marc'Aurelio Ranzato, Raia Hadsell, Maria-Florina Balcan, and Hsuan-Tien Lin, editors, Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, December 6-12, 2020, virtual, 2020.  
+
+19. Jean-Marie Lagniez and Pierre Marquis. An improved decision-dnnf compiler. In Carles Sierra, editor, Proceedings of the Twenty-Sixth International Joint Conference on Artificial Intelligence, IJCAI 2017, Melbourne, Australia, August 19-25, 2017, pages 667-673. ijcai.org, 2017.  
+
+20. Yong Lai, Kuldeep S. Meel, and Roland H. C. Yap. The power of literal equivalence in model counting. In Thirty-Fifth AAAI Conference on Artificial Intelligence, AAAI 2021, Thirty-Third Conference on Innovative Applications of Artificial Intelligence, IAAI 2021, The Eleventh Symposium on Educational Advances in Artificial Intelligence, EAAI 2021, Virtual Event, February 2-9, 2021, pages 3851-3859. AAAI Press, 2021.  
+
+21. Yong Lai, Kuldeep S. Meel, and Roland H. C. Yap. Fast converging anytime model counting. In Brian Williams, Yiling Chen, and Jennifer Neville, editors, Thirty-Seventh AAAI Conference on Artificial Intelligence, AAAI 2023, Thirty-Fifth Conference on Innovative Applications of Artificial Intelligence, IAAI 2023, Thirteenth Symposium on Educational Advances in Artificial Intelligence, EAAI 2023, Washington, DC, USA, February 7-14, 2023, pages 4025-4034. AAAI Press, 2023.  
+
+22. Yong Lai, Kuldeep S. Meel, and Roland H. C. Yap. Panini: An efficient and flexible knowledge compiler. In Ruzica Piskac and Zvonimir Rakamaric, editors, Computer Aided Verification - 37th International Conference, CAV 2025, Zagreb, Croatia, July 23-25, 2025, Proceedings, Part III, volume 15933 of Lecture Notes in Computer Science, pages 92-105. Springer, 2025.  
+
+23. Zhaoyu Li and Xujie Si. Nsnet: A general neural probabilistic framework for satisfiability problems. In Sanmi Koyejo, S. Mohamed, A. Agarwal, Danielle Belgrave, K. Cho, and A. Oh, editors, Advances in Neural Information Processing Systems 35: Annual Conference on Neural Information Processing Systems 2022, NeurIPS 2022, New Orleans, LA, USA, November 28 - December 9, 2022, 2022.  
+
+24. Christian J. Muise, Sheila A. McIlraith, J. Christopher Beck, and Eric I. Hsu. Dsharp: Fast d-dnnf compilation with sharpsat. In Leila Kosseim and Diana Inkpen, editors, Advances in Artificial Intelligence - 25th Canadian Conference on Artificial Intelligence, Canadian AI 2012, Toronto, ON, Canada, May 28-30, 2012. Proceedings, volume 7310 of Lecture Notes in Computer Science, pages 356-361. Springer, 2012.  
+
+25. Emils Ozolins, Karlis Freivalds, Andis Draguns, Eliza Gaile, Ronaldas Zakovskis, and Sergejs Kozlovics. Goal-aware neural SAT solver. In International Joint Conference on Neural Networks, IJCNN 2022, Padua, Italy, July 18-23, 2022, pages 1-8. IEEE, 2022.  
+
+26. Dan Roth. On the hardness of approximate reasoning. Artif. Intell., 82(1-2):273-302, 1996.  
+
+27. Gaia Saveri. Graph neural networks for propositional model counting. In 30th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, ESANN 2022, Bruges, Belgium, October 5-7, 2022, 2022.  
+
+28. Daniel Selsam, Matthew Lamm, Benedikt Bünz, Percy Liang, Leonardo de Moura, and David L. Dill. Learning a SAT solver from single-bit supervision. In 7th International Conference on Learning Representations, ICLR 2019, New Orleans, LA, USA, May 6-9, 2019. OpenReview.net, 2019.  
+
+29. Shubham Sharma, Subhajit Roy, Mate Soos, and Kuldeep S. Meel. GANAK: A scalable probabilistic exact model counter. In Sarit Kraus, editor, Proceedings of the Twenty-Eighth International Joint Conference on Artificial Intelligence, IJCAI 2019, Macao, China, August 10-16, 2019, pages 1169-1176. ijcai.org, 2019.  
+
+30. Mate Soos, Stephan Gocht, and Kuldeep S. Meel. Tinted, detached, and lazy CNF-XOR solving and its applications to counting and sampling. In Shuvendu K. Lahiri and Chao Wang, editors, Computer Aided Verification - 32nd International Conference, CAV 2020, Los Angeles, CA, USA, July 21-24, 2020, Proceedings, Part I, volume 12224 of Lecture Notes in Computer Science, pages 463-484. Springer, 2020.  
+
+31. Mate Soos and Kuldeep S. Meel. BIRD: engineering an efficient CNF-XOR SAT solver and its applications to approximate model counting. In The Thirty-Third AAAI Conference on Artificial Intelligence, AAAI 2019, The Thirty-First Innovative Applications of Artificial Intelligence Conference, IAAI 2019, The Ninth AAAI Symposium on Educational Advances in Artificial Intelligence, EAAI 2019, Honolulu, Hawaii, USA, January 27 - February 1, 2019, pages 1592-1599. AAAI Press, 2019.  
+
+32. Marc Thurley. sharpSAT - counting models with advanced component caching and implicit BCP. In Armin Biere and Carla P. Gomes, editors, Theory and Applications of Satisfiability Testing - SAT 2006, 9th International Conference, Seattle, WA, USA, August 12-15, 2006, Proceedings, volume 4121 of Lecture Notes in Computer Science, pages 424-429. Springer, 2006.  
+
+33. Pashootan Vaezipoor, Gil Lederman, Yuhuai Wu, Chris J. Maddison, Roger B. Grosse, Sanjit A. Seshia, and Fahiem Bacchus. Learning branching heuristics for propositional model counting. In Thirty-Fifth AAAI Conference on Artificial Intelligence, AAAI 2021, Thirty-Third Conference on Innovative Applications of Artificial Intelligence, IAAI 2021, The Eleventh Symposium on Educational Advances in Artificial Intelligence, EAAI 2021, Virtual Event, February 2-9, 2021, pages 12427-12435. AAAI Press, 2021.  
+
+34. Leslie G. Valiant. The complexity of enumeration and reliability problems. SIAM J. Comput., 8(3):410-421, 1979.  
+
+35. Fang Wu, Siyuan Li, and Stan Z. Li. Discovering the representation bottleneck of graph neural networks. IEEE Trans. Knowl. Data Eng., 36(12):7998-8008, 2024.  
+
+36. Jiong Yang and Kuldeep S. Meel. Rounding meets approximate model counting. In Constantin Enea and Akash Lal, editors, Computer Aided Verification - 35th International Conference, CAV 2023, Paris, France, July 17-22, 2023, Proceedings, Part II, volume 13965 of Lecture Notes in Computer Science, pages 132-162. Springer, 2023.  
+
+37. Zichao Yang, Diyi Yang, Chris Dyer, Xiaodong He, Alexander J. Smola, and Eduard H. Hovy. Hierarchical attention networks for document classification. In Kevin Knight, Ani Nenkova, and Owen Rambow, editors, NAACL HLT 2016, The 2016 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, San Diego California, USA, June 12-17, 2016, pages 1480-1489. The Association for Computational Linguistics, 2016.

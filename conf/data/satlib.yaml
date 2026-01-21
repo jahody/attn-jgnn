@@ -1,0 +1,52 @@
+# SATLIB Benchmark Configuration
+# Open-source dataset with CNF formulas from various distributions
+
+name: satlib
+data_dir: ${paths.data_dir}/satlib
+
+# Five categories used in the paper
+categories:
+  - rnd3sat    # Uniform random 3-SAT on phase transition region
+  - bms        # Backbone-minimal random 3-SAT
+  - cbs        # Random 3-SAT with controlled backbone size
+  - gcp        # "Flat" graph coloring
+  - sw_gcp     # "Morphed" graph coloring
+
+# Minimum instances required per category
+min_instances_per_category: 100
+
+# Variable count filtering
+variable_range:
+  min: 100
+  max: 600
+
+# Total expected instances: 46,200
+total_instances: 46200
+
+# Train/validation/test split
+split_ratio:
+  train: 0.6
+  val: 0.2
+  test: 0.2
+
+# Random seed for reproducible splits
+seed: 42
+
+# Label solver configuration
+label_solver:
+  name: dsharp
+  timeout: 5000  # seconds per instance
+
+# Tree decomposition configuration
+tree_decomposition:
+  tool: flowcutter
+  timeout: 300  # seconds
+
+# Graph representation settings
+graph:
+  feature_dim: 64
+  use_join_graph: true  # Use join-graph structure from tree decomposition
+
+# Dataset characteristics (for reference)
+# - All instances are satisfiable
+# - Only satisfiable instances with at least 100 instances per distribution used

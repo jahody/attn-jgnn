@@ -1,0 +1,12 @@
+# Core dependencies for Attn-JGNN data module
+torch>=2.0.0
+torch-geometric>=2.4.0
+hydra-core>=1.3.0
+omegaconf>=2.3.0
+
+# Testing
+pytest>=7.0.0
+tqdm>=4.64.0
+
+# Optional: for parallel processing
+# multiprocessing is built-in to Python
